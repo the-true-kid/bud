@@ -1,0 +1,43 @@
+'use strict';
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('UserPlants', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      user_id: {
+        type: Sequelize.INTEGER
+      },
+      plant_id: {
+        type: Sequelize.INTEGER
+      },
+      nickname: {
+        type: Sequelize.STRING
+      },
+      last_watered: {
+        type: Sequelize.DATE
+      },
+      watering_interval: {
+        type: Sequelize.INTEGER
+      },
+      custom_care_info: {
+        type: Sequelize.TEXT
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('UserPlants');
+  }
+};
