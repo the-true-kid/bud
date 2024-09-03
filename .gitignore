@@ -53,3 +53,5 @@ temp/
 # Database files (if applicable)
 *.sqlite
 *.sqlite3
+
+.DS_Store
