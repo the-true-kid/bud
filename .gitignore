@@ -18,10 +18,7 @@ lib-cov/
 coverage/
 
 # dotenv environment variables file
-.env.development.home
-.env.development.travel
-.env.production.home
-.env.production.travel
+.env*
 
 # Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
 .grunt/
