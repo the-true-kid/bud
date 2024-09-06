@@ -1,33 +1,41 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class UserPlant extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      
-        // Belongs to associations for User and Plant
-        UserPlant.belongsTo(models.User, { foreignKey: 'user_id' });
-        UserPlant.belongsTo(models.Plant, { foreignKey: 'plant_id' });
-      }
-      
-    
+      // Define associations with explicit foreign key names
+      UserPlant.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+      UserPlant.belongsTo(models.Plant, { foreignKey: 'plant_id', as: 'plant' });
+    }
   }
+
   UserPlant.init({
-    user_id: DataTypes.INTEGER,
-    plant_id: DataTypes.INTEGER,
+    user_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Users',  // Explicitly refer to the Users table
+        key: 'id',
+      },
+    },
+    plant_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Plants',  // Explicitly refer to the Plants table
+        key: 'id',
+      },
+    },
     nickname: DataTypes.STRING,
     last_watered: DataTypes.DATE,
     watering_interval: DataTypes.INTEGER,
-    custom_care_info: DataTypes.TEXT
+    custom_care_info: DataTypes.TEXT,
   }, {
     sequelize,
-    modelName: 'UserPlant',
+    modelName: 'UserPlant',  // Explicitly define the model name
+    tableName: 'userPlants',  // Explicitly define the table name to match your table
+    timestamps: true,  // Add timestamps
+    underscored: true,  // Use snake_case for automatically added fields (createdAt -> created_at)
   });
+
   return UserPlant;
 };
