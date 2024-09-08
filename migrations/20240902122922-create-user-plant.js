@@ -10,10 +10,22 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       user_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Users',  // Reference to the Users table
+          key: 'id'
+        },
+        onDelete: 'CASCADE'  // Cascade delete when user is deleted
       },
       plant_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Plants',  // Reference to the Plants table
+          key: 'id'
+        },
+        onDelete: 'NO ACTION'  // No cascade behavior for plants
       },
       nickname: {
         type: Sequelize.STRING
@@ -37,6 +49,7 @@ module.exports = {
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('UserPlants');
   }

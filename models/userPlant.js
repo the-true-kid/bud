@@ -5,8 +5,16 @@ module.exports = (sequelize, DataTypes) => {
   class UserPlant extends Model {
     static associate(models) {
       // Define associations with explicit foreign key names
-      UserPlant.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
-      UserPlant.belongsTo(models.Plant, { foreignKey: 'plant_id', as: 'plant' });
+      UserPlant.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user',
+        onDelete: 'CASCADE'  // Add cascade delete for user
+      });
+      UserPlant.belongsTo(models.Plant, {
+        foreignKey: 'plant_id',
+        as: 'plant',
+        onDelete: 'CASCADE'  // Optional: Add cascade delete for plant if needed
+      });
     }
   }
 
