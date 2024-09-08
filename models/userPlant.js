@@ -1,78 +1,41 @@
-const express = require('express');
-const router = express.Router();
-const db = require('../models');
+'use strict';
+const { Model } = require('sequelize');
 
-// Get all plants for a specific user
-router.get('/users/:userId', async (req, res) => {
-  try {
-    const userPlants = await db.UserPlant.findAll({
-      where: { user_id: req.params.userId },
-      include: [
-        {
-          model: db.Plant,
-          as: 'plant'  // Specify the alias for Plant
-        },
-        {
-          model: db.User,
-          as: 'user'  // Specify the alias for User
-        }
-      ]
-    });
-    res.json(userPlants);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Associate a plant with a user
-router.post('/users/:userId/plants', async (req, res) => {
-  try {
-    const userPlant = await db.UserPlant.create({
-      user_id: req.params.userId,
-      plant_id: req.body.plant_id,
-      nickname: req.body.nickname,
-      last_watered: req.body.last_watered,
-      watering_interval: req.body.watering_interval,
-      custom_care_info: req.body.custom_care_info,
-    });
-    res.status(201).json(userPlant);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Update a user-plant association
-router.put('/users/:userId/plants/:plantId', async (req, res) => {
-  try {
-    const userPlant = await db.UserPlant.findOne({
-      where: { user_id: req.params.userId, plant_id: req.params.plantId },
-    });
-    if (userPlant) {
-      await userPlant.update(req.body);
-      res.json(userPlant);
-    } else {
-      res.status(404).json({ error: 'User-Plant association not found' });
+module.exports = (sequelize, DataTypes) => {
+  class UserPlant extends Model {
+    static associate(models) {
+      UserPlant.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+      UserPlant.belongsTo(models.Plant, { foreignKey: 'plant_id', as: 'plant' });
     }
-  } catch (error) {
-    res.status(400).json({ error: error.message });
   }
-});
-
-// Delete a user-plant association
-router.delete('/users/:userId/plants/:plantId', async (req, res) => {
-  try {
-    const userPlant = await db.UserPlant.findOne({
-      where: { user_id: req.params.userId, plant_id: req.params.plantId },
-    });
-    if (userPlant) {
-      await userPlant.destroy();
-      res.json({ message: 'User-Plant association deleted' });
-    } else {
-      res.status(404).json({ error: 'User-Plant association not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-module.exports = router;
+  
+  UserPlant.init({
+    user_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'User',
+        key: 'id',
+      },
+      allowNull: false
+    },
+    plant_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Plant',
+        key: 'id',
+      },
+      allowNull: false
+    },
+    nickname: DataTypes.STRING,
+    last_watered: DataTypes.DATE,
+    watering_interval: DataTypes.INTEGER,
+    custom_care_info: DataTypes.TEXT
+  }, {
+    sequelize,
+    modelName: 'UserPlant',
+    tableName: 'userPlants',
+    underscored: true,
+  });
+  
+  return UserPlant;
+};

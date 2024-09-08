@@ -7,7 +7,12 @@ router.get('/users/:userId', async (req, res) => {
   try {
     const userPlants = await db.UserPlant.findAll({
       where: { user_id: req.params.userId },
-      include: [db.Plant]
+      include: [
+        {
+          model: db.Plant,  // Reference to the Plant model
+          as: 'plant'  // Alias used in the UserPlant model association
+        }
+      ]
     });
     res.json(userPlants);
   } catch (error) {
