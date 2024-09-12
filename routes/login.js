@@ -25,8 +25,8 @@ router.post('/', async (req, res) => {
     // Generate a token (JWT)
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    // Remove password from the user data
-    const { password, ...userWithoutPassword } = user.get({ plain: true });
+    // Remove the password field from the user object before sending it back
+    const { password: hashedPassword, ...userWithoutPassword } = user.get({ plain: true });
 
     // Return user data and token
     return res.status(200).json({ user: userWithoutPassword, token });
