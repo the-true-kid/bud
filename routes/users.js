@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const authenticateToken = require('../middleware/authenticateToken');  // Import the JWT middleware
 const db = require('../models');
 
-// Get all users
-router.get('/', async (req, res) => {
+// Get all users (Only for admins or specific roles, usually)
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const users = await db.User.findAll();
     res.json(users);
@@ -13,12 +14,18 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a specific user by ID
-router.get('/:id', async (req, res) => {
+// Get a specific user by ID (For the authenticated user only)
+router.get('/:id', authenticateToken, async (req, res) => {
+  // Ensure the user is only fetching their own data
+  if (parseInt(req.params.id) !== req.user.id) {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
   try {
     const user = await db.User.findByPk(req.params.id);
     if (user) {
-      res.json(user);
+      const { password, ...userWithoutPassword } = user.get({ plain: true });  // Exclude password from response
+      res.json(userWithoutPassword);
     } else {
       res.status(404).json({ error: 'User not found' });
     }
@@ -27,31 +34,26 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create a new user with password hashing and location
+// Create a new user with password hashing and location (Public route, no authentication needed)
 router.post('/', async (req, res) => {
   const { username, email, password, location } = req.body;
 
-  // Basic input validation
   if (!username || !email || !password || !location) {
     return res.status(400).json({ error: 'Username, email, password, and location are required' });
   }
 
   try {
-    // Check if the user already exists
     const existingUser = await db.User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
-    // Hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create the new user
     const newUser = await db.User.create({
       username,
       email,
-      password: hashedPassword,  // Store the hashed password
-      location,  // Store the location
+      password: hashedPassword,
+      location,
     });
 
     res.status(201).json(newUser);
@@ -60,11 +62,14 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update a user by ID
-router.put('/:id', async (req, res) => {
+// Update a user by ID (Only the authenticated user can update their own profile)
+router.put('/:id', authenticateToken, async (req, res) => {
+  if (parseInt(req.params.id) !== req.user.id) {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
   const { username, email, password, location } = req.body;
 
-  // Basic input validation
   if (!username || !email || !location) {
     return res.status(400).json({ error: 'Username, email, and location are required' });
   }
@@ -72,16 +77,15 @@ router.put('/:id', async (req, res) => {
   try {
     const user = await db.User.findByPk(req.params.id);
     if (user) {
-      // If the password is being updated, hash the new password
       let updateData = { username, email, location };
       if (password) {
         const hashedPassword = await bcrypt.hash(password, 10);
         updateData.password = hashedPassword;
       }
-      
-      // Update the user
+
       await user.update(updateData);
-      res.json(user);
+      const { password, ...updatedUser } = user.get({ plain: true });
+      res.json(updatedUser);
     } else {
       res.status(404).json({ error: 'User not found' });
     }
@@ -90,8 +94,12 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete a user by ID
-router.delete('/:id', async (req, res) => {
+// Delete a user by ID (Only the authenticated user can delete their own profile)
+router.delete('/:id', authenticateToken, async (req, res) => {
+  if (parseInt(req.params.id) !== req.user.id) {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
   try {
     const user = await db.User.findByPk(req.params.id);
     if (user) {

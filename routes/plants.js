@@ -1,21 +1,25 @@
 const express = require('express');
 const router = express.Router();
+const authenticateToken = require('../middleware/authenticateToken');  // Import the JWT middleware
 const db = require('../models');
 
-// Get all plants
-router.get('/', async (req, res) => {
+// Get all plants for the authenticated user
+router.get('/', authenticateToken, async (req, res) => {
   try {
-    const plants = await db.Plant.findAll();
+    // Find all plants that belong to the logged-in user (based on user ID from the token)
+    const plants = await db.Plant.findAll({ where: { userId: req.user.id } });
     res.json(plants);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get a specific plant by ID
-router.get('/:id', async (req, res) => {
+// Get a specific plant by ID (only if it belongs to the authenticated user)
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const plant = await db.Plant.findByPk(req.params.id);
+    // Find the plant by ID, but make sure it belongs to the logged-in user
+    const plant = await db.Plant.findOne({ where: { id: req.params.id, userId: req.user.id } });
+    
     if (plant) {
       res.json(plant);
     } else {

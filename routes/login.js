@@ -1,15 +1,15 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken'); // Optional for token generation
-const db = require('../models'); // Assuming Sequelize is set up in models/index.js
+const jwt = require('jsonwebtoken');
+const db = require('../models');
 const router = express.Router();
 
 // Login route
 router.post('/', async (req, res) => {
-  const { email, password } = req.body; // Removed username, typically login is by email
+  const { email, password } = req.body;
 
   try {
-    // Query the database to find the user by email (using Sequelize)
+    // Query the database to find the user by email
     const user = await db.User.findOne({ where: { email } });
 
     if (!user) {
@@ -18,16 +18,18 @@ router.post('/', async (req, res) => {
 
     // Compare the password using bcrypt
     const validPassword = await bcrypt.compare(password, user.password);
-
     if (!validPassword) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate a token (JWT) (optional)
+    // Generate a token (JWT)
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+    // Remove password from the user data
+    const { password, ...userWithoutPassword } = user.get({ plain: true });
+
     // Return user data and token
-    return res.status(200).json({ user, token });
+    return res.status(200).json({ user: userWithoutPassword, token });
 
   } catch (error) {
     console.error('Login error:', error);
