@@ -62,10 +62,25 @@ router.post('/', async (req, res) => {
 
 // Update a user by ID
 router.put('/:id', async (req, res) => {
+  const { username, email, password, location } = req.body;
+
+  // Basic input validation
+  if (!username || !email || !location) {
+    return res.status(400).json({ error: 'Username, email, and location are required' });
+  }
+
   try {
     const user = await db.User.findByPk(req.params.id);
     if (user) {
-      await user.update(req.body);
+      // If the password is being updated, hash the new password
+      let updateData = { username, email, location };
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateData.password = hashedPassword;
+      }
+      
+      // Update the user
+      await user.update(updateData);
       res.json(user);
     } else {
       res.status(404).json({ error: 'User not found' });
