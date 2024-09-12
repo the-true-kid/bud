@@ -2,27 +2,27 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('UserPlants', {
+    await queryInterface.createTable('user_plants', { // Use snake_case for table name
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      user_id: {
+      user_id: { // Snake_case for column name
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',  // Reference to the Users table
+          model: 'users',  // Snake_case for referenced table name
           key: 'id'
         },
         onDelete: 'CASCADE'  // Cascade delete when user is deleted
       },
-      plant_id: {
+      plant_id: { // Snake_case for column name
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Plants',  // Reference to the Plants table
+          model: 'plants',  // Snake_case for referenced table name
           key: 'id'
         },
         onDelete: 'NO ACTION'  // No cascade behavior for plants
@@ -39,11 +39,11 @@ module.exports = {
       custom_care_info: {
         type: Sequelize.TEXT
       },
-      createdAt: {
+      created_at: { // Snake_case for timestamps
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: { // Snake_case for timestamps
         allowNull: false,
         type: Sequelize.DATE
       }
@@ -51,6 +51,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('UserPlants');
+    await queryInterface.dropTable('user_plants'); // Use snake_case for table name
   }
 };

@@ -1,0 +1,63 @@
+[
+    {
+      "name": "Snake Plant",
+      "scientific_name": "Sansevieria trifasciata",
+      "care_info": "Thrives in indirect sunlight and requires minimal watering. Allow soil to dry between waterings.",
+      "image_url": ""
+    },
+    {
+      "name": "Spider Plant",
+      "scientific_name": "Chlorophytum comosum",
+      "care_info": "Prefers bright, indirect light and well-draining soil. Keep soil slightly moist.",
+      "image_url": ""
+    },
+    {
+      "name": "Aloe Vera",
+      "scientific_name": "Aloe barbadensis miller",
+      "care_info": "Needs bright, indirect sunlight. Water sparingly, allowing soil to dry between waterings.",
+      "image_url": ""
+    },
+    {
+      "name": "Peace Lily",
+      "scientific_name": "Spathiphyllum",
+      "care_info": "Grows well in low light. Keep soil moist but avoid overwatering.",
+      "image_url": ""
+    },
+    {
+      "name": "Pothos",
+      "scientific_name": "Epipremnum aureum",
+      "care_info": "Tolerates low light. Water when the top inch of soil is dry.",
+      "image_url": ""
+    },
+    {
+      "name": "ZZ Plant",
+      "scientific_name": "Zamioculcas zamiifolia",
+      "care_info": "Thrives in low light and requires minimal watering. Let soil dry out between waterings.",
+      "image_url": ""
+    },
+    {
+      "name": "Monstera",
+      "scientific_name": "Monstera deliciosa",
+      "care_info": "Prefers bright, indirect sunlight. Water when the top inch of soil is dry.",
+      "image_url": ""
+    },
+    {
+      "name": "Rubber Plant",
+      "scientific_name": "Ficus elastica",
+      "care_info": "Needs bright, indirect light. Water when the top of the soil becomes dry.",
+      "image_url": ""
+    },
+    {
+      "name": "Philodendron",
+      "scientific_name": "Philodendron hederaceum",
+      "care_info": "Grows well in indirect light. Water when the top inch of soil is dry.",
+      "image_url": ""
+    },
+    {
+      "name": "Boston Fern",
+      "scientific_name": "Nephrolepis exaltata",
+      "care_info": "Thrives in high humidity and indirect sunlight. Keep soil moist.",
+      "image_url": ""
+    }
+  ]
+  

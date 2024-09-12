@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Plants', {
+    await queryInterface.createTable('plants', {  // Use snake_case for table name
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -21,17 +21,18 @@ module.exports = {
       image_url: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      created_at: {  // Use snake_case for timestamps
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {  // Use snake_case for timestamps
         allowNull: false,
         type: Sequelize.DATE
       }
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Plants');
+    await queryInterface.dropTable('plants');  // Use snake_case for table name
   }
 };

@@ -8,34 +8,34 @@ module.exports = (sequelize, DataTypes) => {
       UserPlant.belongsTo(models.Plant, { foreignKey: 'plant_id', as: 'plant' });
     }
   }
-  
+
   UserPlant.init({
     user_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'User',
+        model: 'User',  // Refers to the User model
         key: 'id',
       },
-      allowNull: false
+      allowNull: false,
     },
     plant_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Plant',
+        model: 'Plant',  // Refers to the Plant model
         key: 'id',
       },
-      allowNull: false
+      allowNull: false,
     },
     nickname: DataTypes.STRING,
     last_watered: DataTypes.DATE,
     watering_interval: DataTypes.INTEGER,
-    custom_care_info: DataTypes.TEXT
+    custom_care_info: DataTypes.TEXT,
   }, {
     sequelize,
-    modelName: 'UserPlant',
-    tableName: 'userPlants',
-    underscored: true,
+    modelName: 'UserPlant',  // Sequelize model name
+    tableName: 'user_plants',  
+    underscored: true,  
   });
-  
+
   return UserPlant;
 };
