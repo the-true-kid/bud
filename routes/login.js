@@ -2,7 +2,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken'); // Optional for token generation
-const db = require('../db'); // Assuming you have a database setup
+const db = require('../models'); // Assuming Sequelize is set up in models/index.js
 const router = express.Router();
 
 // Login route

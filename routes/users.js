@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 const db = require('../models');
 
 // Get all users
@@ -26,10 +27,33 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create a new user
+// Create a new user with password hashing and location
 router.post('/', async (req, res) => {
+  const { username, email, password, location } = req.body;
+
+  // Basic input validation
+  if (!username || !email || !password || !location) {
+    return res.status(400).json({ error: 'Username, email, password, and location are required' });
+  }
+
   try {
-    const newUser = await db.User.create(req.body);
+    // Check if the user already exists
+    const existingUser = await db.User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+
+    // Hash the password before storing it
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the new user
+    const newUser = await db.User.create({
+      username,
+      email,
+      password: hashedPassword,  // Store the hashed password
+      location,  // Store the location
+    });
+
     res.status(201).json(newUser);
   } catch (error) {
     res.status(400).json({ error: error.message });

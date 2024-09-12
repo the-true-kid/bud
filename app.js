@@ -1,5 +1,5 @@
 const express = require('express');
-const db = require('./models'); // Import your Sequelize models
+const db = require('./models'); // Assuming Sequelize is set up in models/index.js
 const dotenv = require('dotenv');
 dotenv.config();
 
