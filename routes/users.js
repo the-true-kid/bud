@@ -14,9 +14,23 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Get the authenticated user's details (based on the token)
+router.get('/getUser', authenticateToken, async (req, res) => {
+  try {
+    const user = await db.User.findByPk(req.user.id);  // Find the user based on the JWT token's user ID
+    if (user) {
+      const { password, ...userWithoutPassword } = user.get({ plain: true });  // Exclude password from response
+      res.json(userWithoutPassword);
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get a specific user by ID (For the authenticated user only)
 router.get('/:id', authenticateToken, async (req, res) => {
-  // Ensure the user is only fetching their own data
   if (parseInt(req.params.id) !== req.user.id) {
     return res.status(403).json({ message: 'Access denied' });
   }
