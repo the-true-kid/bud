@@ -3,6 +3,17 @@ const router = express.Router();
 const authenticateToken = require('../middleware/authenticateToken');  // Import the JWT middleware
 const db = require('../models');
 
+// Get all plants for search functionality (without user restriction)
+router.get('/all', authenticateToken, async (req, res) => {
+  try {
+    // Find all plants in the database (not restricted by userId)
+    const plants = await db.Plant.findAll();
+    res.json(plants);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all plants for the authenticated user
 router.get('/', authenticateToken, async (req, res) => {
   try {
