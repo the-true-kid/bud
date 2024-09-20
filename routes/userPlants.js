@@ -14,6 +14,7 @@ router.get('/', authenticateToken, async (req, res) => {
         {
           model: db.Plant,  // Reference to the Plant model
           as: 'plant',      // Alias used in the UserPlant model association
+          attributes: ['name', 'scientific_name', 'care_info', 'image_url'],  // Include necessary fields from Plant
         },
       ],
     });
@@ -26,6 +27,7 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
+// Associate a plant with the authenticated user based on plant_id
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const { plant_id } = req.body;
@@ -49,7 +51,19 @@ router.post('/', authenticateToken, async (req, res) => {
       plant_id: plant.id,
     });
 
-    res.status(201).json(userPlant);
+    // Fetch and return the full userPlant with the associated Plant details
+    const fullUserPlant = await db.UserPlant.findOne({
+      where: { id: userPlant.id },
+      include: [
+        {
+          model: db.Plant,  // Include the Plant model
+          as: 'plant',      // Alias used in the UserPlant model association
+          attributes: ['name', 'scientific_name', 'care_info', 'image_url'],  // Include necessary fields from Plant
+        },
+      ],
+    });
+
+    res.status(201).json(fullUserPlant);
   } catch (error) {
     console.error('Error occurred:', error);  // Log the full error
     res.status(500).json({ error: 'Failed to add plant' });
