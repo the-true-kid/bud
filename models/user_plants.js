@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   UserPlant.init({
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,  // Ensures it's the primary key
+    },
     user_id: {
       type: DataTypes.INTEGER,
       references: {
@@ -30,12 +35,27 @@ module.exports = (sequelize, DataTypes) => {
     last_watered: DataTypes.DATE,
     watering_interval: DataTypes.INTEGER,
     custom_care_info: DataTypes.TEXT,
+  
+    // New fields
+    size: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    clone_label: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
   }, {
     sequelize,
-    modelName: 'UserPlant',  // Sequelize model name
-    tableName: 'user_plants',  
-    underscored: true,  
+    modelName: 'UserPlant',
+    tableName: 'user_plants',
+    underscored: true,
   });
+  
 
   return UserPlant;
 };

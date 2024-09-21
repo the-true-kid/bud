@@ -30,9 +30,18 @@ router.get('/', authenticateToken, async (req, res) => {
 // Associate a plant with the authenticated user based on plant_id
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { plant_id } = req.body;
+    const {
+      plant_id,
+      nickname,
+      last_watered,
+      watering_interval,
+      custom_care_info,
+      size,
+      location,
+      clone_label
+    } = req.body;
 
-    // Log the received plant_id and user_id
+    // Log the received plant_id and user_id for debugging
     console.log('Received plant_id:', plant_id);
     console.log('Authenticated user ID:', req.user.id);
 
@@ -40,15 +49,24 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'plant_id is required' });
     }
 
+    // Check if the plant exists in the database
     const plant = await db.Plant.findOne({ where: { id: plant_id } });
     if (!plant) {
-      console.log('Plant not found for plant_id:', plant_id);  // Add this log
+      console.log('Plant not found for plant_id:', plant_id);  // Debugging log
       return res.status(404).json({ error: 'Plant not found' });
     }
 
+    // Create a new userPlant association, including all relevant fields
     const userPlant = await db.UserPlant.create({
       user_id: req.user.id,
       plant_id: plant.id,
+      nickname,           // Optional field from the request body
+      last_watered,       // Optional field from the request body
+      watering_interval,  // Optional field from the request body
+      custom_care_info,   // Optional field from the request body
+      size,               // New field
+      location,           // New field
+      clone_label         // New field
     });
 
     // Fetch and return the full userPlant with the associated Plant details
@@ -64,23 +82,60 @@ router.post('/', authenticateToken, async (req, res) => {
     });
 
     res.status(201).json(fullUserPlant);
+
   } catch (error) {
-    console.error('Error occurred:', error);  // Log the full error
-    res.status(500).json({ error: 'Failed to add plant' });
+    // Check for Sequelize-specific errors
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      console.error('Unique Constraint Error:', error.message);  // Log specific error
+      return res.status(400).json({ error: 'This plant is already in your garden.' });
+    }
+    
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      console.error('Foreign Key Constraint Error:', error.message);  // Log specific error
+      return res.status(400).json({ error: 'Invalid plant_id.' });
+    }
+
+    // Log the full error message and stack trace for further debugging
+    console.error('Error occurred:', error.message, error.stack);
+
+    // Return a 500 Internal Server Error with the detailed message
+    res.status(500).json({ error: 'Failed to add plant due to internal server error.' });
   }
 });
 
-// Update a user-plant association for the authenticated user
+
+/// Update a user-plant association for the authenticated user
 router.put('/:plantId', authenticateToken, async (req, res) => {
   try {
     console.log('Updating plant for user:', req.user.id, 'with plant_id:', req.params.plantId);  // Debugging log
 
+    const {
+      nickname,
+      last_watered,
+      watering_interval,
+      custom_care_info,
+      size,
+      location,
+      clone_label
+    } = req.body;
+
+    // Find the specific user-plant association
     const userPlant = await db.UserPlant.findOne({
       where: { user_id: req.user.id, plant_id: req.params.plantId },  // Verify ownership by user_id and plant_id
     });
 
     if (userPlant) {
-      await userPlant.update(req.body);
+      // Update the userPlant with the new values from req.body
+      await userPlant.update({
+        nickname,           // Optional field to update
+        last_watered,       // Optional field to update
+        watering_interval,  // Optional field to update
+        custom_care_info,   // Optional field to update
+        size,               // New field to update
+        location,           // New field to update
+        clone_label         // New field to update
+      });
+      
       console.log('Updated userPlant:', userPlant);  // Debugging log
       res.json(userPlant);
     } else {
