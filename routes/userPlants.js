@@ -103,11 +103,10 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-
-/// Update a user-plant association for the authenticated user
-router.put('/:plantId', authenticateToken, async (req, res) => {
+/// Update a user-plant association for the authenticated user by userPlantId
+router.put('/:userPlantId', authenticateToken, async (req, res) => {
   try {
-    console.log('Updating plant for user:', req.user.id, 'with plant_id:', req.params.plantId);  // Debugging log
+    console.log('Updating plant for user:', req.user.id, 'with userPlant.id:', req.params.userPlantId);  // Debugging log
 
     const {
       nickname,
@@ -119,9 +118,9 @@ router.put('/:plantId', authenticateToken, async (req, res) => {
       clone_label
     } = req.body;
 
-    // Find the specific user-plant association
+    // Find the specific user-plant association by userPlant.id
     const userPlant = await db.UserPlant.findOne({
-      where: { user_id: req.user.id, plant_id: req.params.plantId },  // Verify ownership by user_id and plant_id
+      where: { id: req.params.userPlantId, user_id: req.user.id },  // Verify ownership by user_id and userPlant.id
     });
 
     if (userPlant) {
@@ -139,7 +138,7 @@ router.put('/:plantId', authenticateToken, async (req, res) => {
       console.log('Updated userPlant:', userPlant);  // Debugging log
       res.json(userPlant);
     } else {
-      console.log('User-Plant association not found for plantId:', req.params.plantId);  // Debugging log
+      console.log('User-Plant association not found for userPlantId:', req.params.userPlantId);  // Debugging log
       res.status(404).json({ error: 'User-Plant association not found' });
     }
   } catch (error) {
@@ -148,13 +147,13 @@ router.put('/:plantId', authenticateToken, async (req, res) => {
   }
 });
 
-// Delete a user-plant association for the authenticated user
-router.delete('/:plantId', authenticateToken, async (req, res) => {
+// Delete a user-plant association for the authenticated user by userPlantId
+router.delete('/:userPlantId', authenticateToken, async (req, res) => {
   try {
-    console.log('Deleting plant for user:', req.user.id, 'with plant_id:', req.params.plantId);  // Debugging log
+    console.log('Deleting plant for user:', req.user.id, 'with userPlant.id:', req.params.userPlantId);  // Debugging log
 
     const userPlant = await db.UserPlant.findOne({
-      where: { user_id: req.user.id, plant_id: req.params.plantId },  // Ensure the plant belongs to the user
+      where: { id: req.params.userPlantId, user_id: req.user.id },  // Ensure the plant belongs to the user
     });
 
     if (userPlant) {
@@ -162,7 +161,7 @@ router.delete('/:plantId', authenticateToken, async (req, res) => {
       console.log('Deleted userPlant:', userPlant);  // Debugging log
       res.json({ message: 'User-Plant association deleted' });
     } else {
-      console.log('User-Plant association not found for plantId:', req.params.plantId);  // Debugging log
+      console.log('User-Plant association not found for userPlantId:', req.params.userPlantId);  // Debugging log
       res.status(404).json({ error: 'User-Plant association not found' });
     }
   } catch (error) {
@@ -172,3 +171,4 @@ router.delete('/:plantId', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+
