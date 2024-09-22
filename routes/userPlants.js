@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const authenticateToken = require('../middleware/authenticateToken');  // Import the middleware
-const userPlantController = require('../controllers/userPlantController');  // Import the controller
+const authenticateToken = require('../middleware/authenticateToken');
+const userPlantsController = require('../controllers/userPlantsController');
 
-// Get all plants for the authenticated user
-router.get('/', authenticateToken, userPlantController.getUserPlants);
+// Fetch all plants for the authenticated user
+router.get('/', authenticateToken, userPlantsController.getUserPlants);
 
-// Associate a plant with the authenticated user
-router.post('/', authenticateToken, userPlantController.addUserPlant);
+// Add a new plant for the authenticated user
+router.post('/', authenticateToken, userPlantsController.addUserPlant);
 
-// Update a user-plant association for the authenticated user
-router.put('/:userPlantId', authenticateToken, userPlantController.updateUserPlant);
+// Update a user-plant association
+router.put('/:userPlantId', authenticateToken, userPlantsController.updateUserPlant);
 
-// Delete a user-plant association for the authenticated user
-router.delete('/:userPlantId', authenticateToken, userPlantController.deleteUserPlant);
+// Delete a user-plant association
+router.delete('/:userPlantId', authenticateToken, userPlantsController.deleteUserPlant);
 
 module.exports = router;

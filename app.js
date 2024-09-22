@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('./models'); // Assuming Sequelize is set up in models/index.js
 const dotenv = require('dotenv');
 const cors = require('cors'); // Import cors package
+const { handleError } = require('./middleware/errorMiddleware'); // Import error handler middleware
 
 dotenv.config();
 
@@ -23,6 +24,14 @@ app.use('/api/users', usersRouter);
 app.use('/api/plants', plantsRouter);
 app.use('/api/userPlants', userPlantsRouter);
 app.use('/api/login', loginRoute);
+
+// Handle undefined routes (404 error)
+app.use((req, res, next) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// Error handling middleware (place it after all routes)
+app.use(handleError);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -1,125 +1,39 @@
-const bcrypt = require('bcrypt');
-const db = require('../models');
+// userController.js
 
-// Get all users (Admin use case)
-exports.getAllUsers = async (req, res) => {
+const userService = require('../services/userService');
+
+exports.createUser = async (req, res, next) => {
   try {
-    const users = await db.User.findAll();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get the authenticated user's details
-exports.getUser = async (req, res) => {
-  try {
-    const user = await db.User.findByPk(req.user.id);
-    if (user) {
-      const { password, ...userWithoutPassword } = user.get({ plain: true });
-      res.json(userWithoutPassword);
-    } else {
-      res.status(404).json({ error: 'User not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Get a specific user by ID (Only for authenticated user)
-exports.getUserById = async (req, res) => {
-  if (parseInt(req.params.id) !== req.user.id) {
-    return res.status(403).json({ message: 'Access denied' });
-  }
-
-  try {
-    const user = await db.User.findByPk(req.params.id);
-    if (user) {
-      const { password, ...userWithoutPassword } = user.get({ plain: true });
-      res.json(userWithoutPassword);
-    } else {
-      res.status(404).json({ error: 'User not found' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Create a new user (Public)
-exports.createUser = async (req, res) => {
-  const { username, email, password, location } = req.body;
-
-  if (!username || !email || !password || !location) {
-    return res.status(400).json({ error: 'Username, email, password, and location are required' });
-  }
-
-  try {
-    const existingUser = await db.User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ error: 'User with this email already exists' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await db.User.create({
-      username,
-      email,
-      password: hashedPassword,
-      location,
-    });
-
+    const newUser = await userService.createUser(req.body);
     res.status(201).json(newUser);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-// Update a user by ID
-exports.updateUser = async (req, res) => {
-  if (parseInt(req.params.id) !== req.user.id) {
-    return res.status(403).json({ message: 'Access denied' });
-  }
-
-  const { username, email, password, location } = req.body;
-
-  if (!username || !email || !location) {
-    return res.status(400).json({ error: 'Username, email, and location are required' });
-  }
-
+exports.getUserById = async (req, res, next) => {
   try {
-    const user = await db.User.findByPk(req.params.id);
-    if (user) {
-      let updateData = { username, email, location };
-      if (password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        updateData.password = hashedPassword;
-      }
-
-      await user.update(updateData);
-      const { password, ...updatedUser } = user.get({ plain: true });
-      res.json(updatedUser);
-    } else {
-      res.status(404).json({ error: 'User not found' });
-    }
+    const user = await userService.getUserById(req.params.id);
+    res.json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    next(error);
   }
 };
 
-// Delete a user by ID
-exports.deleteUser = async (req, res) => {
-  if (parseInt(req.params.id) !== req.user.id) {
-    return res.status(403).json({ message: 'Access denied' });
-  }
-
+exports.updateUser = async (req, res, next) => {
   try {
-    const user = await db.User.findByPk(req.params.id);
-    if (user) {
-      await user.destroy();
-      res.json({ message: 'User deleted' });
-    } else {
-      res.status(404).json({ error: 'User not found' });
-    }
+    const updatedUser = await userService.updateUser(req.params.id, req.body);
+    res.json(updatedUser);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
+  }
+};
+
+exports.deleteUser = async (req, res, next) => {
+  try {
+    await userService.deleteUser(req.params.id);
+    res.json({ message: 'User deleted' });
+  } catch (error) {
+    next(error);
   }
 };
