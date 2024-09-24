@@ -1,5 +1,3 @@
-// userController.js
-
 const userService = require('../services/userService');
 
 exports.createUser = async (req, res, next) => {
@@ -14,6 +12,16 @@ exports.createUser = async (req, res, next) => {
 exports.getUserById = async (req, res, next) => {
   try {
     const user = await userService.getUserById(req.params.id);
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// New: Get the authenticated user from the token
+exports.getAuthenticatedUser = async (req, res, next) => {
+  try {
+    const user = await userService.getUserById(req.user.id);  // Fetch user from the token
     res.json(user);
   } catch (error) {
     next(error);

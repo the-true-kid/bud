@@ -10,10 +10,14 @@ router.post('/', validateUserCreation, userController.createUser);
 // Update a user by ID (Authenticated user only)
 router.put('/:id', authenticateToken, validateUserUpdate, userController.updateUser);
 
-// Get user details (Authenticated user only)
+// Get the authenticated user's details (new route)
+router.get('/getUser', authenticateToken, userController.getAuthenticatedUser);
+
+// Get user details by ID (Authenticated user only)
 router.get('/:id', authenticateToken, userController.getUserById);
 
 // Delete a user by ID (Authenticated user only)
 router.delete('/:id', authenticateToken, userController.deleteUser);
 
 module.exports = router;
+
