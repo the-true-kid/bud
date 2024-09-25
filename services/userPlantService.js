@@ -1,17 +1,29 @@
 const db = require('../models');
 
-// Fetch all plants for the authenticated user
+// Utility function to calculate watering interval
+const getWateringInterval = (userPlant) => {
+  // If custom watering interval exists, use it; otherwise, use the default from Plant
+  return userPlant.custom_watering_interval || userPlant.plant.watering_interval;
+};
+
+// Fetch all plants for the authenticated user with calculated watering interval
 exports.getUserPlants = async (userId) => {
-  return await db.UserPlant.findAll({
+  const userPlants = await db.UserPlant.findAll({
     where: { user_id: userId },
     include: [
       {
         model: db.Plant,
         as: 'plant',
-        attributes: ['name', 'scientific_name', 'care_info', 'image_url'],
+        attributes: ['name', 'scientific_name', 'care_info', 'image_url', 'watering_interval'], // Include default watering interval
       },
     ],
   });
+
+  // Enrich each user plant with the correct watering interval
+  return userPlants.map(userPlant => ({
+    ...userPlant.toJSON(),
+    watering_interval: getWateringInterval(userPlant) // Add the watering interval (custom or default)
+  }));
 };
 
 // Add a new plant for the authenticated user
