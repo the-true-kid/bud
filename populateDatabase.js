@@ -1,5 +1,5 @@
 const { sequelize, User, Plant } = require('./models');
-const { faker } = require('@faker-js/faker');
+const plantData = require('./data/plants.json');  // Assuming the JSON file is named 'plants.json'
 
 const populateDatabase = async () => {
   try {
@@ -12,44 +12,34 @@ const populateDatabase = async () => {
     await sequelize.sync({ force: true });
     console.log('Database sync successful!');
 
-    // Create some Users
-    const users = [];
-    for (let i = 0; i < 10; i++) {
-      const user = await User.create({
-        username: faker.internet.userName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        location: faker.address.city(),
-      });
-      users.push(user);
-    }
-    console.log('Users created successfully!');
+    // Create a Single User with provided details
+    const user = await User.create({
+      username: "testuser",
+      email: "testuser@example.com",
+      password: "testpassword123",  // You can hash this later if needed
+      location: "New York",
+    });
+    console.log(`User created successfully: ${user.username}`);
 
-    // Create some Plants
+    // Create Plants from JSON data
     const plants = [];
-    for (let i = 0; i < 10; i++) {
-      const plant = await Plant.create({
-        name: faker.commerce.productName(),
-        scientific_name: faker.lorem.words(2),
-        care_info: faker.lorem.paragraph(),
-        image_url: faker.image.imageUrl(),
-      });
-      plants.push(plant);
+    for (const plant of plantData) {
+      const createdPlant = await Plant.create(plant);
+      plants.push(createdPlant);
     }
-    console.log('Plants created successfully!');
+    console.log('Plants created successfully from JSON!');
 
-    // Associate Users with Plants via the through model (UserPlant)
-    for (let i = 0; i < 20; i++) {
-      const randomUser = users[faker.datatype.number({ min: 0, max: users.length - 1 })];
-      const randomPlant = plants[faker.datatype.number({ min: 0, max: plants.length - 1 })];
+    // Associate User with some Plants via UserPlant
+    for (let i = 0; i < 5; i++) {  // Associate user with 5 random plants for example
+      const randomPlant = plants[Math.floor(Math.random() * plants.length)];
 
-      // Add plant to the user
-      await randomUser.addPlant(randomPlant, {
+      await user.addPlant(randomPlant, {
         through: {
-          nickname: faker.commerce.productAdjective(),
-          last_watered: faker.date.past(),
-          watering_interval: faker.datatype.number({ min: 1, max: 14 }),
-          custom_care_info: faker.lorem.sentence(),
+          nickname: `Test ${randomPlant.name}`,  // Random nickname for the plant association
+          last_watered: new Date(),  // Current date as last watered
+          watering_interval: randomPlant.watering_interval,
+          custom_watering_interval: randomPlant.watering_interval,  // Custom interval for the user (nullable)
+          custom_care_info: `Custom care info for ${randomPlant.name}`,
         },
       });
     }
@@ -65,3 +55,6 @@ const populateDatabase = async () => {
 
 // Run the population function
 populateDatabase().catch((err) => console.error('Populate error:', err));
+
+
+
