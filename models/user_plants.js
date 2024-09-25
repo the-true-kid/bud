@@ -35,8 +35,12 @@ module.exports = (sequelize, DataTypes) => {
     last_watered: DataTypes.DATE,
     watering_interval: DataTypes.INTEGER,
     custom_care_info: DataTypes.TEXT,
-  
+
     // New fields
+    custom_watering_interval: {
+      type: DataTypes.INTEGER,
+      allowNull: true, // Allows null, fallback to default if null
+    },
     size: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -55,7 +59,6 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'user_plants',
     underscored: true,
   });
-  
 
   return UserPlant;
 };

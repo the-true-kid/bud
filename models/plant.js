@@ -4,6 +4,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Plant extends Model {
     static associate(models) {
+      // Association between Plant and User through UserPlant
       Plant.belongsToMany(models.User, {
         through: models.UserPlant,
         as: 'users',
@@ -20,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
       scientific_name: DataTypes.STRING,
       care_info: DataTypes.TEXT,
       image_url: DataTypes.STRING,
+      watering_interval: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 7, // Default watering interval of 7 days
+      },
     },
     {
       sequelize,
