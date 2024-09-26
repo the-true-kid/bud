@@ -1,5 +1,6 @@
 const { sequelize, User, Plant } = require('./models');
-const plantData = require('./data/plants.json');  // Assuming the JSON file is named 'plants.json'
+const bcrypt = require('bcryptjs');  // Import bcrypt for password hashing
+const plantData = require('./plants.json');  // Assuming the JSON file is named 'plants.json'
 
 const populateDatabase = async () => {
   try {
@@ -7,16 +8,18 @@ const populateDatabase = async () => {
     await sequelize.authenticate();  // Check connection
     console.log('Database connection successful!');
 
-    // Sync the database (Drops and recreates all tables)
     console.log('Attempting to sync database...');
     await sequelize.sync({ force: true });
     console.log('Database sync successful!');
 
-    // Create a Single User with provided details
+    // Hash password before creating the user
+    const hashedPassword = await bcrypt.hash("testpassword123", 10);  // Hash the password with bcrypt
+
+    // Create a Single User with hashed password
     const user = await User.create({
       username: "testuser",
       email: "testuser@example.com",
-      password: "testpassword123",  // You can hash this later if needed
+      password: hashedPassword,  // Use the hashed password
       location: "New York",
     });
     console.log(`User created successfully: ${user.username}`);
@@ -30,7 +33,7 @@ const populateDatabase = async () => {
     console.log('Plants created successfully from JSON!');
 
     // Associate User with some Plants via UserPlant
-    for (let i = 0; i < 5; i++) {  // Associate user with 5 random plants for example
+    for (let i = 0; i < 5; i++) {  // Associate user with 5 random plants
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
 
       await user.addPlant(randomPlant, {
@@ -55,6 +58,3 @@ const populateDatabase = async () => {
 
 // Run the population function
 populateDatabase().catch((err) => console.error('Populate error:', err));
-
-
-

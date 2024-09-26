@@ -31,27 +31,41 @@ module.exports = (sequelize, DataTypes) => {
       },
       allowNull: false,
     },
-    nickname: DataTypes.STRING,
-    last_watered: DataTypes.DATE,
-    watering_interval: DataTypes.INTEGER,
-    custom_care_info: DataTypes.TEXT,
-
-    // New fields
+    nickname: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    last_watered: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    watering_interval: {
+      type: DataTypes.INTEGER,
+      allowNull: true, // Default watering interval (optional)
+    },
     custom_watering_interval: {
       type: DataTypes.INTEGER,
       allowNull: true, // Allows null, fallback to default if null
     },
+    custom_care_info: {
+      type: DataTypes.TEXT,
+      allowNull: true, // User-specific care info
+    },
+    custom_image_url: {
+      type: DataTypes.STRING,
+      allowNull: true, // User-specific image URL
+    },
     size: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true, // Plant size (user-defined)
     },
     location: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true, // Location (user-defined)
     },
     clone_label: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true, // Optional user-defined clone label
     }
   }, {
     sequelize,

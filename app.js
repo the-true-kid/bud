@@ -14,6 +14,9 @@ app.use(cors());
 // Middleware to parse JSON requests
 app.use(express.json());
 
+// Serve static files (like images) from the "public" directory
+app.use(express.static('public'));
+
 // Import and use your route files
 const usersRouter = require('./routes/users');
 const plantsRouter = require('./routes/plants');
