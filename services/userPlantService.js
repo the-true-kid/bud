@@ -18,17 +18,24 @@ exports.getUserPlants = async (userId) => {
       {
         model: db.Plant,
         as: 'plant',
-        attributes: ['name', 'scientific_name', 'care_info', 'image_url', 'watering_interval'], // Include default plant attributes
+        attributes: ['care_info', 'image_url', 'watering_interval'], // Only fetch necessary fields from Plant
       },
     ],
   });
 
-  // Enrich each user plant with the correct watering interval, care info, and custom image URL
+  // Map over userPlants to return only the necessary fields, excluding the full plant object
   return userPlants.map(userPlant => ({
-    ...userPlant.toJSON(),
-    watering_interval: getCustomOrDefault(userPlant, 'watering_interval'), // Dynamically get the watering interval
-    care_info: getCustomOrDefault(userPlant, 'care_info'), // Dynamically get the care info
-    image_url: getCustomOrDefault(userPlant, 'image_url') // Dynamically get the image URL (placeholder or default)
+    id: userPlant.id,
+    nickname: userPlant.nickname,
+    last_watered: userPlant.last_watered,
+    watering_interval: getCustomOrDefault(userPlant, 'watering_interval'),
+    care_info: getCustomOrDefault(userPlant, 'care_info'),
+    image_url: getCustomOrDefault(userPlant, 'image_url'),
+    size: userPlant.size,
+    location: userPlant.location,
+    clone_label: userPlant.clone_label,
+    createdAt: userPlant.createdAt,
+    updatedAt: userPlant.updatedAt,
   }));
 };
 
@@ -59,16 +66,19 @@ exports.addUserPlant = async (userId, plantData, customImage) => {
     clone_label,
   });
 
-  return await db.UserPlant.findOne({
-    where: { id: userPlant.id },
-    include: [
-      {
-        model: db.Plant,
-        as: 'plant',
-        attributes: ['name', 'scientific_name', 'care_info', 'image_url', 'watering_interval'],
-      },
-    ],
-  });
+  return {
+    id: userPlant.id,
+    nickname: userPlant.nickname,
+    last_watered: userPlant.last_watered,
+    watering_interval: custom_watering_interval || plant.watering_interval,
+    care_info: custom_care_info || plant.care_info,
+    image_url: custom_image_url || plant.image_url,
+    size: userPlant.size,
+    location: userPlant.location,
+    clone_label: userPlant.clone_label,
+    createdAt: userPlant.createdAt,
+    updatedAt: userPlant.updatedAt,
+  };
 };
 
 // Update a user-plant association, with optional custom image upload
@@ -85,7 +95,7 @@ exports.updateUserPlant = async (userId, userPlantId, plantData, customImage) =>
 
   let custom_image_url = userPlant.custom_image_url; // Keep the current image if no new one is provided
   if (customImage) {
-    custom_image_url = await uploadImage(customImage); // Simulate image upload and get placeholder URL
+    custom_image_url = await uploadImage(customImage); // Upload new image if provided
   }
 
   await userPlant.update({
@@ -99,7 +109,19 @@ exports.updateUserPlant = async (userId, userPlantId, plantData, customImage) =>
     clone_label,
   });
 
-  return userPlant;
+  return {
+    id: userPlant.id,
+    nickname: userPlant.nickname,
+    last_watered: userPlant.last_watered,
+    watering_interval: custom_watering_interval || userPlant.plant.watering_interval,
+    care_info: custom_care_info || userPlant.plant.care_info,
+    image_url: custom_image_url || userPlant.plant.image_url,
+    size: userPlant.size,
+    location: userPlant.location,
+    clone_label: userPlant.clone_label,
+    createdAt: userPlant.createdAt,
+    updatedAt: userPlant.updatedAt,
+  };
 };
 
 // Delete a user-plant association

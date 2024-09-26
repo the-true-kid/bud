@@ -1,6 +1,6 @@
-const { sequelize, User, Plant } = require('./models');
-const bcrypt = require('bcryptjs');  // Import bcrypt for password hashing
-const plantData = require('./plants.json');  // Assuming the JSON file is named 'plants.json'
+const { sequelize, Plant } = require('./models');
+const userService = require('./services/userService');  // Import the createUser function from your service
+const plantData = require('./data/plants.json');  // Assuming the JSON file is named 'plants.json'
 
 const populateDatabase = async () => {
   try {
@@ -12,16 +12,16 @@ const populateDatabase = async () => {
     await sequelize.sync({ force: true });
     console.log('Database sync successful!');
 
-    // Hash password before creating the user
-    const hashedPassword = await bcrypt.hash("testpassword123", 10);  // Hash the password with bcrypt
-
-    // Create a Single User with hashed password
-    const user = await User.create({
+    // Use the createUser function to ensure password is hashed correctly
+    const userData = {
       username: "testuser",
       email: "testuser@example.com",
-      password: hashedPassword,  // Use the hashed password
-      location: "New York",
-    });
+      password: "testpassword123",  // Plain-text password here
+      location: "New York"
+    };
+
+    // Call the createUser function from userService
+    const user = await userService.createUser(userData);
     console.log(`User created successfully: ${user.username}`);
 
     // Create Plants from JSON data
@@ -32,21 +32,21 @@ const populateDatabase = async () => {
     }
     console.log('Plants created successfully from JSON!');
 
-    // Associate User with some Plants via UserPlant
+    // Associate User with some Plants via UserPlant using default values
     for (let i = 0; i < 5; i++) {  // Associate user with 5 random plants
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
 
+      // Use default watering interval and care info (no custom fields)
       await user.addPlant(randomPlant, {
         through: {
           nickname: `Test ${randomPlant.name}`,  // Random nickname for the plant association
           last_watered: new Date(),  // Current date as last watered
-          watering_interval: randomPlant.watering_interval,
-          custom_watering_interval: randomPlant.watering_interval,  // Custom interval for the user (nullable)
-          custom_care_info: `Custom care info for ${randomPlant.name}`,
+          watering_interval: randomPlant.watering_interval,  // Use default watering interval
+          custom_care_info: null,  // No custom care info
         },
       });
     }
-    console.log('UserPlants created successfully!');
+    console.log('UserPlants created successfully with default watering and care info!');
 
   } catch (error) {
     console.error('Error during database sync or data population:', error);
