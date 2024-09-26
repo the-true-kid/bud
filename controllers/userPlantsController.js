@@ -1,4 +1,4 @@
-const userPlantService = require('../services/userPlantService');
+const userPlantService = require('../services/userPlants');
 
 // Fetch all plants for the authenticated user
 exports.getUserPlants = async (req, res, next) => {
@@ -6,7 +6,7 @@ exports.getUserPlants = async (req, res, next) => {
     const userPlants = await userPlantService.getUserPlants(req.user.id);
     res.json(userPlants);
   } catch (error) {
-    next(error);  // Pass error to error middleware
+    next(error);
   }
 };
 
@@ -16,7 +16,7 @@ exports.addUserPlant = async (req, res, next) => {
     const newUserPlant = await userPlantService.addUserPlant(req.user.id, req.body, req.file); // Pass req.file for the image
     res.status(201).json(newUserPlant);
   } catch (error) {
-    next(error);  // Pass error to error middleware
+    next(error);
   }
 };
 
@@ -26,7 +26,7 @@ exports.updateUserPlant = async (req, res, next) => {
     const updatedUserPlant = await userPlantService.updateUserPlant(req.user.id, req.params.userPlantId, req.body, req.file); // Pass req.file for the image
     res.json(updatedUserPlant);
   } catch (error) {
-    next(error);  // Pass error to error middleware
+    next(error);
   }
 };
 
@@ -36,6 +36,6 @@ exports.deleteUserPlant = async (req, res, next) => {
     await userPlantService.deleteUserPlant(req.user.id, req.params.userPlantId);
     res.json({ message: 'User-Plant association deleted' });
   } catch (error) {
-    next(error);  // Pass error to error middleware
+    next(error);
   }
 };
