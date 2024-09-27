@@ -1,31 +1,31 @@
-const db = require('../../models');
-const { getCustomOrDefault } = require('./userPlantUtils');
+const db = require('../../models'); // Adjust the path as needed
+const { getCustomOrDefault } = require('./userPlantUtils'); // Import your utility function
 
+// Fetch all plants for the authenticated user with calculated watering interval, care info, and custom image URL
 const getUserPlants = async (userId) => {
-  const userPlants = await db.UserPlant.findAll({
-    where: { user_id: userId },
-    include: [
-      {
-        model: db.Plant,
-        as: 'plant',
-        attributes: ['care_info', 'image_url', 'watering_interval'],
-      },
-    ],
-  });
+  try {
+    const userPlants = await db.UserPlant.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: db.Plant,
+          as: 'plant',
+          attributes: ['name', 'scientific_name', 'care_info', 'image_url', 'watering_interval'], // Include default plant attributes
+        },
+      ],
+    });
 
-  return userPlants.map(userPlant => ({
-    id: userPlant.id,
-    nickname: userPlant.nickname,
-    last_watered: userPlant.last_watered,
-    watering_interval: getCustomOrDefault(userPlant, 'watering_interval'),
-    care_info: getCustomOrDefault(userPlant, 'care_info'),
-    image_url: getCustomOrDefault(userPlant, 'image_url'),
-    size: userPlant.size,
-    location: userPlant.location,
-    clone_label: userPlant.clone_label,
-    createdAt: userPlant.createdAt,
-    updatedAt: userPlant.updatedAt,
-  }));
+    // Enrich each user plant with the correct watering interval, care info, and custom image URL
+    return userPlants.map(userPlant => ({
+      ...userPlant.toJSON(),
+      watering_interval: getCustomOrDefault(userPlant, 'watering_interval'),
+      care_info: getCustomOrDefault(userPlant, 'care_info'),
+      image_url: getCustomOrDefault(userPlant, 'image_url'),
+    }));
+  } catch (error) {
+    console.error('Error fetching user plants:', error);
+    throw new Error('Unable to fetch user plants');
+  }
 };
 
 module.exports = getUserPlants;

@@ -1,4 +1,4 @@
-const userPlantService = require('../services/userPlants');
+const userPlantService = require('../services/userPlants'); // Adjust the path as necessary
 
 // Fetch all plants for the authenticated user
 exports.getUserPlants = async (req, res, next) => {
@@ -13,7 +13,7 @@ exports.getUserPlants = async (req, res, next) => {
 // Add a new plant for the authenticated user with custom image handling
 exports.addUserPlant = async (req, res, next) => {
   try {
-    const newUserPlant = await userPlantService.addUserPlant(req.user.id, req.body, req.file); // Pass req.file for the image
+    const newUserPlant = await userPlantService.addUserPlant(req.user.id, req.body, req.file);
     res.status(201).json(newUserPlant);
   } catch (error) {
     next(error);
@@ -23,7 +23,7 @@ exports.addUserPlant = async (req, res, next) => {
 // Update a user-plant association with custom image handling
 exports.updateUserPlant = async (req, res, next) => {
   try {
-    const updatedUserPlant = await userPlantService.updateUserPlant(req.user.id, req.params.userPlantId, req.body, req.file); // Pass req.file for the image
+    const updatedUserPlant = await userPlantService.updateUserPlant(req.user.id, req.params.userPlantId, req.body, req.file);
     res.json(updatedUserPlant);
   } catch (error) {
     next(error);
