@@ -36,17 +36,21 @@ const populateDatabase = async () => {
     for (let i = 0; i < 5; i++) {  // Associate user with 5 random plants
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
 
-      // Use default watering interval and care info (no custom fields)
+      // Use default or fallback values if no custom fields provided
       await user.addPlant(randomPlant, {
         through: {
           nickname: `Test ${randomPlant.name}`,  // Random nickname for the plant association
           last_watered: new Date(),  // Current date as last watered
-          watering_interval: randomPlant.watering_interval,  // Use default watering interval
-          custom_care_info: null,  // No custom care info
+          custom_watering_interval: randomPlant.default_watering_interval || 7,  // Default to plant watering interval or fallback to 7 days
+          custom_care_info: randomPlant.care_info || null,  // Default to plant care info or null
+          custom_image_url: randomPlant.image_url || null,  // Default to plant image URL or null
+          size: null,  // No size info
+          location: null,  // No location info
+          notification_preference: true  // Default to true (send notifications)
         },
       });
     }
-    console.log('UserPlants created successfully with default watering and care info!');
+    console.log('UserPlants created successfully with default and custom fields!');
 
   } catch (error) {
     console.error('Error during database sync or data population:', error);

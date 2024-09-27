@@ -1,26 +1,26 @@
-const db = require('../../models'); // Adjust the path as needed
-const { getCustomOrDefault } = require('./userPlantUtils'); // Import your utility function
+const db = require('../../models');
 
-// Fetch all plants for the authenticated user with calculated watering interval, care info, and custom image URL
 const getUserPlants = async (userId) => {
   try {
+    // Fetch all user-specific plants for the authenticated user
     const userPlants = await db.UserPlant.findAll({
       where: { user_id: userId },
-      include: [
-        {
-          model: db.Plant,
-          as: 'plant',
-          attributes: ['name', 'scientific_name', 'care_info', 'image_url', 'watering_interval'], // Include default plant attributes
-        },
-      ],
     });
 
-    // Enrich each user plant with the correct watering interval, care info, and custom image URL
+    // Return user-specific data only (without including Plant details)
     return userPlants.map(userPlant => ({
-      ...userPlant.toJSON(),
-      watering_interval: getCustomOrDefault(userPlant, 'watering_interval'),
-      care_info: getCustomOrDefault(userPlant, 'care_info'),
-      image_url: getCustomOrDefault(userPlant, 'image_url'),
+      id: userPlant.id,
+      plant_id: userPlant.plant_id, // Use this to link with Plant data in the frontend state
+      nickname: userPlant.nickname,
+      last_watered: userPlant.last_watered,
+      custom_watering_interval: userPlant.custom_watering_interval,
+      custom_care_info: userPlant.custom_care_info,
+      custom_image_url: userPlant.custom_image_url,
+      size: userPlant.size,
+      location: userPlant.location,
+      clone_label: userPlant.clone_label,
+      createdAt: userPlant.createdAt,
+      updatedAt: userPlant.updatedAt,
     }));
   } catch (error) {
     console.error('Error fetching user plants:', error);

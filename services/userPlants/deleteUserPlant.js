@@ -10,6 +10,7 @@ const deleteUserPlant = async (userId, userPlantId) => {
   }
 
   await userPlant.destroy();
+  return { message: 'User-Plant association deleted successfully' };
 };
 
 module.exports = deleteUserPlant;
